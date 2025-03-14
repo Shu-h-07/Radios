@@ -15,7 +15,6 @@ import java.util.Optional;
 @Service
 public class LoginService {
 
-    private static final Logger log = LoggerFactory.getLogger(LoginService.class);
     @Autowired
     LoginRepo loginRepo;
 
