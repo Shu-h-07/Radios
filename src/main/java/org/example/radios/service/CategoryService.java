@@ -9,40 +9,56 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class CategoryService {
 
     @Autowired
-    CategoryRepo categoryRepo;
+    CategoryRepo repo;
 
-    public List<Category> getAll(){
-        return categoryRepo.findAll();
+    public List<Category> findAll() {
+        return repo.findAll();
     }
-    public Category getById(Integer id){
-        return categoryRepo.getById(id);
+
+    public Category findById(UUID id) {
+        return repo.findById(id).get();
     }
-    public Result createC(CategoryDto categoryDto){
+
+    public Category findByName(String name) {
+        return repo.findByName(name).get();
+    }
+
+    public Result create(CategoryDto categoryDto) {
+        boolean b = repo.existsByName(categoryDto.getName());
+        if (b) {
+            return new Result(false ," name is already used" );
+        }
         Category category = new Category();
         category.setName(categoryDto.getName());
         category.setDescription(categoryDto.getDescription());
-        categoryRepo.save(category);
-        return new Result(true, "Add qilindi");
+        repo.save(category);
+        return new Result(true ,"Category created " );
     }
-    public Result updateC(Integer id , CategoryDto categoryDto){
-        Optional<Category> optionalCategory
-                = categoryRepo.findById(id);
-        if (optionalCategory.isPresent()) {
-            Category category = optionalCategory.get();
+
+    public Result update(CategoryDto categoryDto, UUID id) {
+        Optional<Category> byId = repo.findById(id);
+        if (byId.isPresent()) {
+            Category category = byId.get();
             category.setName(categoryDto.getName());
             category.setDescription(categoryDto.getDescription());
-            categoryRepo.save(category);
-            return new Result(true, "Update qilindi");
+            repo.save(category);
+            return new Result(true ,"Category  updated " );
         }
-        return new Result(false, " Qilinmadi");
+        return new Result(false ,"Category not found" );
     }
-    public Result deleteC(Integer id){
-        categoryRepo.deleteById(id);
-        return new Result(true, "Delete qilindi");
+
+    public Result delete(UUID id) {
+        Optional<Category> byId = repo.findById(id);
+        if (byId.isPresent()) {
+            repo.delete(byId.get());
+            return new Result(true ,"Category deleted " );
+        }
+        return new Result(false ,"Category not found" );
     }
 }
